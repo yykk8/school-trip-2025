@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- GitHubやSNSでシェアされた時のための設定 (OGP) を追加 -->
+    <meta property="og:title" content="Trip Notes ― 自分たちで作る世界一の修学旅行 ―">
+    <meta property="og:description" content="修学旅行を楽しいだけで終わらせない、修学旅行の記録・思い出共有サイト">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1540959733332-e94e270b4052?q=80&w=2000">
+    
+    <title>Trip Notes ― 自分たちで作る世界一の修学旅行 ―</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --main-blue: #e0f2fe;
+            --main-purple: #f3e8ff;
+            --accent-orange: #fb923c;
+            --accent-green: #4ade80;
+            --text-dark: #1e293b;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            color: var(--text-dark);
+            background-color: #fafafa;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .font-round {
+            font-family: 'Zen Maru Gothic', sans-serif;
+        }
+
+        /* ヒーロースライドショー */
+        .hero-slide {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+            filter: brightness(0.7);
+        }
+        .hero-slide.active { opacity: 1; }
+
+        /* ガラスモルフィズム */
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* アニメーション */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeInUp 0.8s ease-out forwards; }
+
+        /* タブのアクティブ状態 */
+        .tab-active {
+            background-color: var(--accent-orange) !important;
+            color: white !important;
+        }
+
+        .scroll-hide::-webkit-scrollbar { display: none; }
+        .scroll-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <!-- ナビゲーション -->
+    <nav class="fixed top-0 w-full z-50 glass shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="text-xl font-bold tracking-tighter text-indigo-600 font-round">Trip Notes</div>
+            <div class="hidden md:flex space-x-6 text-sm font-medium">
+                <a href="#home" class="hover:text-indigo-500 transition">HOME</a>
+                <a href="#archive" class="hover:text-indigo-500 transition">学びの共有</a>
+                <a href="#gallery" class="hover:text-indigo-500 transition">ギャラリー</a>
+                <a href="#guide" class="hover:text-indigo-500 transition">旅の軌跡</a>
+            </div>
+            <button class="md:hidden p-2" id="menuBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- モバイルメニュー -->
+    <div id="mobileMenu" class="fixed inset-0 z-40 bg-white hidden flex-col items-center justify-center space-y-8 text-2xl font-round">
+        <a href="#home" onclick="toggleMenu()">HOME</a>
+        <a href="#archive" onclick="toggleMenu()">学びの共有</a>
+        <a href="#gallery" onclick="toggleMenu()">ギャラリー</a>
+        <a href="#guide" onclick="toggleMenu()">旅の軌跡</a>
+        <button onclick="toggleMenu()" class="absolute top-4 right-4 p-2">✕ Close</button>
+    </div>
+
+    <!-- ヒーローセクション -->
+    <section id="home" class="relative h-screen w-full flex items-center justify-center overflow-hidden">
+        <!-- アップロード画像を使用したスライドショー -->
+        <div id="slide1" class="hero-slide active" style="background-image: url('https://images.unsplash.com/photo-1540959733332-e94e270b4052?q=80&w=2000');"></div> <!-- 東京の夜景 -->
+        <div id="slide2" class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1509023467864-1ecbb3f635c6?q=80&w=2000');"></div> <!-- 逆さ富士 -->
+        <div id="slide3" class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?q=80&w=2000');"></div> <!-- 東京タワー -->
+        <div id="slide4" class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1431207908269-0014022c39e9?q=80&w=2000');"></div> <!-- 忍野八海/自然 -->
+        
+        <div class="relative z-10 text-center text-white px-4">
+            <p class="text-lg md:text-xl mb-4 tracking-widest fade-in">2024.11 TOKYO & YAMANASHI</p>
+            <h1 class="text-4xl md:text-7xl font-bold mb-6 font-round drop-shadow-lg fade-in" style="animation-delay: 0.2s;">自分たちで作る<br>世界一の修学旅行</h1>
+            <div class="h-1 w-24 bg-white mx-auto mb-8 fade-in" style="animation-delay: 0.4s;"></div>
+            <a href="#archive" class="inline-block px-8 py-3 bg-white text-indigo-600 rounded-full font-bold hover:bg-indigo-50 transition transform hover:scale-105 fade-in" style="animation-delay: 0.6s;">
+                記録を見る
+            </a>
+        </div>
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7-7-7" />
+            </svg>
+        </div>
+    </section>
+
+    <!-- 導入メッセージ -->
+    <section class="py-20 bg-white px-4">
+        <div class="max-w-3xl mx-auto text-center">
+            <span class="text-indigo-500 font-bold tracking-widest uppercase text-sm">Introduction</span>
+            <h2 class="text-2xl md:text-3xl font-bold mt-2 mb-6 font-round">楽しいだけじゃない、<br>私たちの学びと成長の記録</h2>
+            <p class="text-slate-600 leading-relaxed mb-8">
+                修学旅行の3日間、私たちは何を見て、何を感じたのか。<br>
+                クラスの枠を超えて思い出をシェアし、記憶を形に残す場所。ここでの記録は、いつか進路に迷った時のヒントになるかもしれません。
+            </p>
+            <div class="flex justify-center space-x-4">
+                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 学びの共有 (Archive) -->
+    <section id="archive" class="py-20 bg-slate-50 px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex items-end justify-between mb-10">
+                <div>
+                    <h2 class="text-3xl font-bold font-round">学びの共有</h2>
+                    <p class="text-slate-500 text-sm mt-1">Archive: クラス別の学び・思い出シート</p>
+                </div>
+            </div>
+
+            <!-- クラスフィルタ -->
+            <div class="flex space-x-2 overflow-x-auto pb-6 scroll-hide mb-8">
+                <button onclick="filterClass('all')" class="class-tab tab-active whitespace-nowrap px-6 py-2 rounded-full bg-white border border-slate-200 text-sm font-bold shadow-sm transition">ALL</button>
+                <button onclick="filterClass('2-1')" class="class-tab whitespace-nowrap px-6 py-2 rounded-full bg-white border border-slate-200 text-sm font-bold shadow-sm transition">2-1</button>
+                <button onclick="filterClass('2-2')" class="class-tab whitespace-nowrap px-6 py-2 rounded-full bg-white border border-slate-200 text-sm font-bold shadow-sm transition">2-2</button>
+                <button onclick="filterClass('2-3')" class="class-tab whitespace-nowrap px-6 py-2 rounded-full bg-white border border-slate-200 text-sm font-bold shadow-sm transition">2-3</button>
+                <button onclick="filterClass('2-4')" class="class-tab whitespace-nowrap px-6 py-2 rounded-full bg-white border border-slate-200 text-sm font-bold shadow-sm transition">2-4</button>
+                <button onclick="filterClass('2-5')" class="class-tab whitespace-nowrap px-6 py-2 rounded-full bg-white border border-slate-200 text-sm font-bold shadow-sm transition">2-5</button>
+                <button onclick="filterClass('2-6')" class="class-tab whitespace-nowrap px-6 py-2 rounded-full bg-white border border-slate-200 text-sm font-bold shadow-sm transition">2-6</button>
+            </div>
+
+            <!-- 投稿グリッド -->
+            <div id="archiveGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                <!-- カードにアップロード写真の一部を使用 -->
+                <div class="archive-item bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition group" data-class="2-1">
+                    <div class="aspect-[3/4] bg-slate-200 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1540959733332-e94e270b4052?q=80&w=800" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                        <div class="absolute top-2 left-2 px-2 py-1 bg-white/80 backdrop-blur rounded text-[10px] font-bold">2-1</div>
+                    </div>
+                    <div class="p-3">
+                        <h3 class="font-bold text-sm mb-2 line-clamp-2">東京駅の建築美と歴史について</h3>
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] text-slate-400">Anonymous</span>
+                            <button onclick="like(this)" class="flex items-center space-x-1 text-slate-400 hover:text-orange-500 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                <span class="text-xs font-bold">12</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="archive-item bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition group" data-class="2-4">
+                    <div class="aspect-[3/4] bg-slate-200 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1431207908269-0014022c39e9?q=80&w=800" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                        <div class="absolute top-2 left-2 px-2 py-1 bg-white/80 backdrop-blur rounded text-[10px] font-bold">2-4</div>
+                    </div>
+                    <div class="p-3">
+                        <h3 class="font-bold text-sm mb-2 line-clamp-2">山梨の果物から学ぶ農業の工夫</h3>
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] text-slate-400">Anonymous</span>
+                            <button onclick="like(this)" class="flex items-center space-x-1 text-slate-400 hover:text-orange-500 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                <span class="text-xs font-bold">28</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="archive-item bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition group" data-class="2-6">
+                    <div class="aspect-[3/4] bg-slate-200 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?q=80&w=800" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                        <div class="absolute top-2 left-2 px-2 py-1 bg-white/80 backdrop-blur rounded text-[10px] font-bold">2-6</div>
+                    </div>
+                    <div class="p-3">
+                        <h3 class="font-bold text-sm mb-2 line-clamp-2">東京タワー周辺のフィールドワーク</h3>
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] text-slate-400">Anonymous</span>
+                            <button onclick="like(this)" class="flex items-center space-x-1 text-slate-400 hover:text-orange-500 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                <span class="text-xs font-bold">15</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-12 text-center">
+                <button class="px-8 py-3 bg-indigo-100 text-indigo-600 rounded-full font-bold hover:bg-indigo-200 transition">
+                    もっと見る
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 写真で振り返る (Gallery) -->
+    <section id="gallery" class="py-20 bg-white px-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-bold font-round">写真で振り返る</h2>
+                <p class="text-slate-500 text-sm mt-1">Gallery: 旅の色彩をジャンル別に</p>
+            </div>
+
+            <!-- カテゴリフィルタ -->
+            <div class="flex flex-wrap justify-center gap-3 mb-10">
+                <button onclick="filterGallery('scenery')" class="gallery-tab tab-active px-6 py-2 rounded-lg bg-slate-100 text-sm font-bold transition">風景・街並み</button>
+                <button onclick="filterGallery('study')" class="gallery-tab px-6 py-2 rounded-lg bg-slate-100 text-sm font-bold transition">体験・学習</button>
+                <button onclick="filterGallery('food')" class="gallery-tab px-6 py-2 rounded-lg bg-slate-100 text-sm font-bold transition">食事・グルメ</button>
+                <button onclick="filterGallery('smile')" class="gallery-tab px-6 py-2 rounded-lg bg-slate-100 text-sm font-bold transition">スマイル</button>
+            </div>
+
+            <div id="galleryGrid" class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
+                <div class="gallery-item aspect-square bg-slate-100 rounded-lg overflow-hidden" data-category="scenery">
+                    <img src="https://images.unsplash.com/photo-1431207908269-0014022c39e9?q=80&w=800" class="w-full h-full object-cover hover:scale-105 transition">
+                </div>
+                <div class="gallery-item aspect-square bg-slate-100 rounded-lg overflow-hidden" data-category="scenery">
+                    <img src="https://images.unsplash.com/photo-1509023467864-1ecbb3f635c6?q=80&w=800" class="w-full h-full object-cover hover:scale-105 transition">
+                </div>
+                <div class="gallery-item aspect-square bg-slate-100 rounded-lg overflow-hidden" data-category="scenery">
+                    <img src="https://images.unsplash.com/photo-1540959733332-e94e270b4052?q=80&w=800" class="w-full h-full object-cover hover:scale-105 transition">
+                </div>
+                <div class="gallery-item aspect-square bg-slate-100 rounded-lg overflow-hidden" data-category="scenery">
+                    <img src="https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?q=80&w=800" class="w-full h-full object-cover hover:scale-105 transition">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 旅の軌跡 (Guide & Tips) -->
+    <section id="guide" class="py-20 bg-indigo-600 text-white px-4 overflow-hidden relative">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
+        <div class="max-w-6xl mx-auto relative z-10">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-3xl font-bold font-round mb-6">次の世界一へ！<br>旅の軌跡を参考に。</h2>
+                    <p class="text-indigo-100 mb-8 leading-relaxed">
+                        この記録は、私たちだけのものじゃない。<br>
+                        来年、再来年に修学旅行へ行く後輩たちのための、最高のガイドブックでもあります。
+                        志望理由書に使えるキーワード集や、現地のリアルな注意点もまとめました。
+                    </p>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-4 p-4 bg-white/10 rounded-xl border border-white/20">
+                            <div class="w-10 h-10 rounded-full bg-orange-400 flex items-center justify-center font-bold">TIP</div>
+                            <div>
+                                <h4 class="font-bold">志望理由書に使える！</h4>
+                                <p class="text-xs text-indigo-100">「伝統と革新」「持続可能な観光」などの学びを言語化。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="mt-10 px-10 py-4 bg-orange-500 text-white rounded-full font-bold hover:bg-orange-600 transition shadow-xl">
+                        後輩向け引継ぎ資料を見る
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-6 bg-white/10 rounded-3xl backdrop-blur-md border border-white/20">
+                        <h4 class="font-bold mb-2">Day 1</h4>
+                        <p class="text-sm opacity-80">Tokyo Station / Asakusa</p>
+                    </div>
+                    <div class="p-6 bg-white/10 rounded-3xl backdrop-blur-md border border-white/20">
+                        <h4 class="font-bold mb-2">Day 2</h4>
+                        <p class="text-sm opacity-80">Field Study / Hotel</p>
+                    </div>
+                    <div class="p-6 bg-white/10 rounded-3xl backdrop-blur-md border border-white/20">
+                        <h4 class="font-bold mb-2">Day 3</h4>
+                        <p class="text-sm opacity-80">Yamanashi / Nature</p>
+                    </div>
+                    <div class="p-6 bg-orange-400 rounded-3xl text-white">
+                        <h4 class="font-bold mb-2">Summary</h4>
+                        <p class="text-sm">World No.1 Trip!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- フッター -->
+    <footer class="py-12 bg-slate-900 text-slate-400 px-4 text-center">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-xl font-bold font-round text-white mb-6">Trip Notes</h2>
+            <div class="flex flex-wrap justify-center gap-6 text-sm mb-10">
+                <a href="#" class="hover:text-white transition">利用規約</a>
+                <a href="#" class="hover:text-white transition">匿名投稿ルール</a>
+                <a href="#" class="hover:text-white transition">お問い合わせ</a>
+                <!-- GitHubリンク用のプレースホルダー -->
+                <a href="https://github.com/" target="_blank" class="hover:text-white transition flex items-center gap-1">
+                    <svg fill="currentColor" viewBox="0 0 24 24" class="w-4 h-4"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    GitHub
+                </a>
+            </div>
+            <p class="text-xs mb-2 italic">Created with ❤️ by Trip Notes Planning Team</p>
+            <p class="text-[10px] opacity-50">&copy; 2024 Trip Notes Project. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // ヒーロースライドショー
+        let currentSlide = 1;
+        const totalSlides = 4;
+        setInterval(() => {
+            const currentEl = document.getElementById(`slide${currentSlide}`);
+            if (currentEl) currentEl.classList.remove('active');
+            
+            currentSlide = (currentSlide % totalSlides) + 1;
+            
+            const nextEl = document.getElementById(`slide${currentSlide}`);
+            if (nextEl) nextEl.classList.add('active');
+        }, 5000);
+
+        // モバイルメニュー
+        const menuBtn = document.getElementById('menuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        function toggleMenu() {
+            mobileMenu.classList.toggle('hidden');
+            mobileMenu.classList.toggle('flex');
+        }
+        if (menuBtn) menuBtn.addEventListener('click', toggleMenu);
+
+        // 学びの共有フィルタ
+        function filterClass(className) {
+            const items = document.querySelectorAll('.archive-item');
+            const tabs = document.querySelectorAll('.class-tab');
+            
+            tabs.forEach(tab => {
+                tab.classList.remove('tab-active');
+                if (tab.innerText === className.toUpperCase()) tab.classList.add('tab-active');
+                if (className === 'all' && tab.innerText === 'ALL') tab.classList.add('tab-active');
+            });
+
+            items.forEach(item => {
+                if (className === 'all' || item.getAttribute('data-class') === className) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // ギャラリーフィルタ
+        function filterGallery(category) {
+            const items = document.querySelectorAll('.gallery-item');
+            const tabs = document.querySelectorAll('.gallery-tab');
+
+            tabs.forEach(tab => {
+                tab.classList.remove('tab-active');
+                const onclickAttr = tab.getAttribute('onclick');
+                if (onclickAttr && onclickAttr.includes(category)) tab.classList.add('tab-active');
+            });
+
+            items.forEach(item => {
+                if (item.getAttribute('data-category') === category) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // いいね機能
+        function like(btn) {
+            const span = btn.querySelector('span');
+            let count = parseInt(span.innerText);
+            
+            if (btn.classList.contains('text-orange-500')) {
+                count--;
+                btn.classList.remove('text-orange-500');
+                btn.classList.add('text-slate-400');
+            } else {
+                count++;
+                btn.classList.remove('text-slate-400');
+                btn.classList.add('text-orange-500');
+                btn.style.transform = 'scale(1.2)';
+                setTimeout(() => btn.style.transform = 'scale(1)', 200);
+            }
+            span.innerText = count;
+        }
+
+        // スムーススクロール
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetEl = document.querySelector(targetId);
+                if (targetEl) {
+                    targetEl.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // 初期フィルタリング
+        window.onload = () => {
+            filterGallery('scenery');
+        };
+    </script>
+</body>
+</html>
